@@ -48,7 +48,6 @@ class DatabaseHelper {
     );
   }
 
-  // Register user with hashed password
   Future<int> registerUser(User user) async {
     final db = await database;
     final hashedPassword = md5.convert(utf8.encode(user.password)).toString();
@@ -56,7 +55,6 @@ class DatabaseHelper {
     return await db.insert('users', user.toMap());
   }
 
-  // Login user by validating username and password
   Future<User?> loginUser(String username, String password) async {
     final db = await database;
     final hashedPassword = md5.convert(utf8.encode(password)).toString();
@@ -72,9 +70,7 @@ class DatabaseHelper {
     return null;
   }
 
-  // Add these methods to the DatabaseHelper class
-
-// Save a subscription for a user
+  // save a subscription for a user
   Future<void> saveSubscription(int userId, String topic) async {
     final db = await database;
     await db.insert(
@@ -84,7 +80,7 @@ class DatabaseHelper {
     );
   }
 
-// Retrieve subscriptions for a user
+//retrieve user subscriptions
   Future<List<String>> getSubscriptions(int userId) async {
     final db = await database;
     final result = await db.query(
@@ -95,7 +91,6 @@ class DatabaseHelper {
     return result.map((row) => row['topic'] as String).toList();
   }
 
-// Delete a subscription for a user
   Future<void> deleteSubscription(int userId, String topic) async {
     final db = await database;
     await db.delete(
@@ -126,7 +121,6 @@ class DatabaseHelper {
     return result.isNotEmpty ? result.first['threshold'] as double : null;
   }
 
-  // Delete user by ID
   Future<void> deleteUser(int id) async {
     final db = await database;
     await db.delete(
@@ -141,7 +135,7 @@ class DatabaseHelper {
     );
   }
 
-  // Delete and recreate tables (for resetting data)
+  // Delete and recreate tables
   Future<void> deleteTable() async {
     final db = await database;
     await db.execute('DROP TABLE IF EXISTS subscriptions');
@@ -176,85 +170,3 @@ class DatabaseHelper {
     print("Database deleted.");
   }
 }
-
-
-// import 'dart:convert';
-// import 'package:crypto/crypto.dart';
-// import 'package:path/path.dart';
-// import 'package:sqflite/sqflite.dart';
-// // import 'package:sqflite/sqflite.dart';
-// import '../models/user.dart';
-
-// class DatabaseHelper {
-//   static final DatabaseHelper _instance = DatabaseHelper._internal();
-//   static Database? _database;
-
-//   DatabaseHelper._internal();
-
-//   factory DatabaseHelper() => _instance;
-
-//   Future<Database> get database async {
-//     if (_database != null) return _database!;
-//     _database = await _initDatabase();
-//     return _database!;
-//   }
-
-//   Future<Database> _initDatabase() async {
-//     final dbPath = await getDatabasesPath();
-//     return openDatabase(
-//       join(dbPath, 'user_auth.db'),
-//       onCreate: (db, version) {
-//         return db.execute(
-//           'CREATE TABLE users(id INTEGER PRIMARY KEY, username TEXT, password TEXT)',
-//         );
-//       },
-//       version: 1,
-//     );
-//   }
-
-//   Future<int> registerUser(User user) async {
-//     final db = await database;
-//     final hashedPassword = md5.convert(utf8.encode(user.password)).toString();
-//     user.password = hashedPassword;
-//     return await db.insert('users', user.toMap());
-//   }
-
-//   Future<User?> loginUser(String username, String password) async {
-//     final db = await database;
-//     final hashedPassword = md5.convert(utf8.encode(password)).toString();
-//     final result = await db.query(
-//       'users',
-//       where: 'username = ? AND password = ?',
-//       whereArgs: [username, hashedPassword],
-//     );
-
-//     if (result.isNotEmpty) {
-//       return User.fromMap(result.first);
-//     }
-//     return null;
-//   }
-
-//   Future<void> deleteUser(int id) async {
-//     final db = await database;
-//     await db.delete(
-//       'users',
-//       where: 'id = ?',
-//       whereArgs: [id],
-//     );
-//   }
-
-//   Future<void> deleteTable() async {
-//     final db = await database;
-//     await db.execute('DROP TABLE IF EXISTS users');
-//     await db.execute(
-//       '''
-//       CREATE TABLE users(
-//         id INTEGER PRIMARY KEY, 
-//         username TEXT, 
-//         password TEXT,
-//         topic TEXT
-//       )
-//       ''',
-//     );
-//   }
-// }

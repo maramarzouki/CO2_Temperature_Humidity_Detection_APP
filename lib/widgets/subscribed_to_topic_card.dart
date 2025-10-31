@@ -1,17 +1,14 @@
-import 'package:co2_detection_app_flutter/services/co2_mqtt_service.dart';
+import 'package:co2_detection_app_flutter/services/mqtt_service.dart';
 import 'package:flutter/material.dart';
 
 class SubscribedToTopicCard extends StatefulWidget {
   final String topicName;
-  // final String topicValue;
   final VoidCallback onUnsubscribe;
   final MqttService mqttService;
   final Function(double) onCO2Update;
-  // final
   const SubscribedToTopicCard({
     super.key,
     required this.topicName,
-    // required this.topicValue,
     required this.onUnsubscribe,
     required this.mqttService,
     required this.onCO2Update,

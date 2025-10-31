@@ -22,7 +22,7 @@ class MqttService {
     client.onConnected = onConnected;
     client.onDisconnected = onDisconnected;
     client.onSubscribed = onSubscribed;
-    client.autoReconnect = true; // Enable auto-reconnect
+    client.autoReconnect = true;
     client.logging(on: true);
   }
 
@@ -50,16 +50,6 @@ class MqttService {
         onDataReceived!(topic, payload);
       }
     });
-    // client.updates!.listen((List<MqttReceivedMessage<MqttMessage>> messages) {
-    //   final MqttPublishMessage recMessage =
-    //       messages[0].payload as MqttPublishMessage;
-    //   final payload =
-    //       MqttPublishPayload.bytesToStringAsString(recMessage.payload.message);
-    //   print("Received CO2 MESSAGE: $payload in ${messages[0]}");
-    //   if (onDataReceived != null) {
-    //     onDataReceived!(payload);
-    //   }
-    // });
   }
 
   void onConnected() {
@@ -88,17 +78,6 @@ class MqttService {
 
   void onDisconnected() {
     print("disconnected from the MQTT broker");
-    // print('Disconnected from broker, attempting to reconnect...');
-    // Future.delayed(const Duration(seconds: 5), () async {
-    //   try {
-    //     await client.connect();
-    //     print('Reconnected to broker');
-    //     client.subscribe('class/maram_marzouki/co2', MqttQos.atMostOnce);
-    //   } catch (e) {
-    //     print('Reconnection failed: $e');
-    //     onDisconnected(); // Retry until successful
-    //   }
-    // });
   }
 
   void onSubscribed(String topic) {

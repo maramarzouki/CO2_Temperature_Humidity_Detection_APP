@@ -10,7 +10,6 @@ class SplashScreen extends StatelessWidget {
     final prefs = await SharedPreferences.getInstance();
     final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
 
-    // Redirect based on login status
     if (isLoggedIn) {
       Navigator.of(context).pushReplacementNamed(Homepage.routeName);
     } else {

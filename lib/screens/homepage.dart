@@ -1,10 +1,8 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:co2_detection_app_flutter/co2_progress_ring.dart';
+import 'package:co2_detection_app_flutter/services/mqtt_service.dart';
+import 'package:co2_detection_app_flutter/widgets/co2_progress_ring.dart';
 import 'package:co2_detection_app_flutter/helpers/database_helper.dart';
 import 'package:co2_detection_app_flutter/screens/login_screen.dart';
-import 'package:co2_detection_app_flutter/services/co2_mqtt_service.dart';
-import 'package:co2_detection_app_flutter/services/humidity_mqtt_service.dart';
-import 'package:co2_detection_app_flutter/services/temperature_mqtt_service.dart';
 import 'package:co2_detection_app_flutter/widgets/subscribe_topic_card.dart';
 import 'package:co2_detection_app_flutter/widgets/subscribed_to_topic_card.dart';
 import 'package:flutter/material.dart';
@@ -36,9 +34,6 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   final MqttService mqttService = MqttService();
   final AudioPlayer _audioPlayer = AudioPlayer();
-  // final TemperatureMqttService temperatureMqttService =
-  //     TemperatureMqttService();
-  // final HumidityMqttService humidityMqttService = HumidityMqttService();
   double co2CurrentValue = 0;
   double threshold = 0;
   bool isAlertAcknowledged = false;
@@ -62,7 +57,6 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     getUserDetails();
-    // loadThreshold();
     super.initState();
     print("USER IDDDDDDDD $userID");
     initNotifications();
@@ -79,40 +73,16 @@ class _HomepageState extends State<Homepage> {
           showAlertDialog();
         }
 
-        // Reset acknowledgment when the CO2 level drops below the threshold
+        //reset acknowledgment when the CO2 level drops below the threshold
         if (co2CurrentValue <= threshold) {
           isAlertAcknowledged = false;
           isDialogShown = false;
         }
       }
-      // if (topic == "class/maram_marzouki/temperature") {
-      //   setState(() {
-      //     tempValue = data;
-      //   });
-      // }
-      // if (topic == "class/maram_marzouki/humidity") {
-      //   setState(() {
-      //     humidityValue = data;
-      //   });
-      // }
     };
 
     mqttService.connect();
   }
-
-  // Future<void> loadThreshold() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     threshold = prefs.getDouble('threshold') ?? 1000; // Load or use default
-  //   });
-  // }
-
-  // void updateCO2Value(double value) {
-  //   setState(() {
-  //     co2CurrentValue = value;
-  //   });
-  //   saveThreshold(value);
-  // }
 
   void getUserDetails() async {
     final prefs = await SharedPreferences.getInstance();
@@ -124,39 +94,16 @@ class _HomepageState extends State<Homepage> {
       setState(() {
         subscribedTopics.addAll(savedTopics);
       });
-      // Reconnect to each saved subscription
+      // reconnect to each saved subscription
       mqttService.connect().then((_) {
         for (String topic in savedTopics) {
           if (topic == "Humidity") {
             mqttService.onSubscribe(
               "Humidity",
             );
-            // mqttService.onDataReceived = (topic, data) {
-            //   if (topic == "class/maram_marzouki/temperature") {
-            //     setState(() {
-            //       topicValues["Temperature"] = data;
-            //     });
-            //   }
-            // setState(() {
-            //   topicValues["Temperature"] = data; // Update temperature value
-            // });
-
-            // await temperatureMqttService.connect();
           }
           if (topic == "Temperature") {
             mqttService.onSubscribe("Temperature");
-            // subscribedToHumidity = true;
-            // mqttService.onDataReceived = (topic, data) {
-            //   if (topic == "class/maram_marzouki/humidity") {
-            //     setState(() {
-            //       topicValues["Humidity"] = data;
-            //     });
-            //   }
-            //   // setState(() {
-            //   //   topicValues["Humidity"] = data; // Update humidity value
-            //   // });
-            // }
-            // await humidityMqttService.connect();
           }
         }
       });
@@ -168,49 +115,18 @@ class _HomepageState extends State<Homepage> {
     setState(() {
       subscribedTopics.add(topic);
     });
-    // Connect to the appropriate service for the topic
+    // connect to the appropriate service for the topic
     if (topic == "Temperature") {
       mqttService.onSubscribe("Temperature");
-      // temperatureMqttService.onDataReceived = (data) {
-      //   setState(() {
-      //     topicValues["Temperature"] = data; // Update value immediately
-      //   });
-      // };
-      // await temperatureMqttService.connect();
     } else if (topic == "Humidity") {
       mqttService.onSubscribe("Humidity");
-      // humidityMqttService.onDataReceived = (data) {
-      //   setState(() {
-      //     topicValues["Humidity"] = data; // Update value immediately
-      //   });
-      // };
-      // await humidityMqttService.connect();
     }
 
-    // Save subscription to the database
+    // save subscription to the db
     await _dbHelper.saveSubscription(userID!, topic);
 
-    // Trigger a UI refresh after subscription
+    // refresh after subscription
     setState(() {});
-    // if (topic == "Temperature") {
-    //   temperatureMqttService.onDataReceived = (data) {
-    //     print("DATAAAA $data");
-    //     setState(() {
-    //       tempValue = data;
-    //     });
-    //   };
-    //   temperatureMqttService.connect();
-    // }
-    // if (topic == "Humidity") {
-    //   humidityMqttService.onDataReceived = (data) {
-    //     print("DATAAAA $data");
-    //     setState(() {
-    //       humidityValue = data;
-    //     });
-    //   };
-    //   humidityMqttService.connect();
-    // }
-    // await _dbHelper.saveSubscription(userID!, topic);
   }
 
   void handleUnsubscribe(String topic) async {
@@ -263,7 +179,7 @@ class _HomepageState extends State<Homepage> {
   Future<void> showAlertDialog() async {
     setState(() {
       isDialogShown = true;
-    }); // Mark the dialog as shown
+    });
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -275,7 +191,7 @@ class _HomepageState extends State<Homepage> {
               onPressed: () async {
                 await _audioPlayer.stop();
                 setState(() {
-                  isAlertAcknowledged = true; // Mark the alert as acknowledged
+                  isAlertAcknowledged = true;
                 });
                 Navigator.of(context).pop();
               },
@@ -291,25 +207,14 @@ class _HomepageState extends State<Homepage> {
     setState(() {
       threshold = value;
     });
-    updateThre(value); // Persist the updated threshold
+    updateThre(value);
   }
 
   Future<void> updateThre(double value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setDouble('threshold', value); // Persist value
-    await _dbHelper.updateThreshold(userID!, value); // Database update
+    await prefs.setDouble('threshold', value);
+    await _dbHelper.updateThreshold(userID!, value);
   }
-
-  // void updateThreshold(double value) {
-  //   setState(() {
-  //     threshold = value;
-  //   });
-  //   updateThre(value); // Persist the updated threshold
-  // }
-
-  // void _triggerVibration() async {
-  //   Vibration.vibrate(duration: 500);
-  // }
 
   void _triggerAlert() async {
     Vibration.vibrate(duration: 500);
@@ -338,7 +243,6 @@ class _HomepageState extends State<Homepage> {
           ),
         ],
         backgroundColor: const Color(0xff1d3557),
-        // backgroundColor: const Color(0xffd7e3fc),
       ),
       backgroundColor: const Color(0xffd7e3fc),
       body: SafeArea(
@@ -474,35 +378,6 @@ class _HomepageState extends State<Homepage> {
                             ],
                           ),
                         ),
-                        // Form(
-                        //   child: Row(
-                        //     children: [
-                        //       Expanded(
-                        //         child: TextFormField(
-                        //           decoration: InputDecoration(
-                        //               labelText: "Threshold",
-                        //               border: OutlineInputBorder(
-                        //                   borderRadius: BorderRadius.circular(50),
-                        //                   borderSide: BorderSide.none),
-                        //               fillColor: Colors.white,
-                        //               filled: true,
-                        //               contentPadding: const EdgeInsets.symmetric(
-                        //                   vertical: 9, horizontal: 9)),
-                        //         ),
-                        //       ),
-                        //       const SizedBox(width: 8),
-                        //       ElevatedButton(
-                        //         onPressed: () {},
-                        //         style: ElevatedButton.styleFrom(
-                        //             backgroundColor: const Color(0xff1d3557)),
-                        //         child: const Icon(
-                        //           Icons.done,
-                        //           color: Colors.white,
-                        //         ),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
                         const SizedBox(height: 25),
                         Center(
                           child: Container(

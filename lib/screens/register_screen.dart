@@ -26,7 +26,6 @@ class RegisterScreen extends StatelessWidget {
     final user = User(username: username, password: password, threshold: 5000);
     await _dbHelper.registerUser(user);
 
-    // Notify user of successful registration
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Registration successful!')),
     );
@@ -48,7 +47,7 @@ class RegisterScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Image.asset(
-                  'assets/images/co2.png', // Replace with your logo path
+                  'assets/images/co2.png',
                   height: 200,
                 ),
                 const SizedBox(height: 20),
@@ -140,51 +139,3 @@ class RegisterScreen extends StatelessWidget {
     );
   }
 }
-
-// import 'package:flutter/material.dart';
-// import '../helpers/database_helper.dart';
-// import '../models/user.dart';
-
-// class RegisterScreen extends StatelessWidget {
-//   static const routeName = '/register_screen';
-//   final _usernameController = TextEditingController();
-//   final _passwordController = TextEditingController();
-//   final _dbHelper = DatabaseHelper();
-
-//   RegisterScreen({super.key});
-
-//   void _registerUser() async {
-//     final username = _usernameController.text;
-//     final password = _passwordController.text;
-//     final user = User(username: username, password: password, threshold: 5000);
-//     await _dbHelper.registerUser(user);
-//     // Notify user of successful registration or navigate to login
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(title: Text('Register')),
-//       body: Padding(
-//         padding: EdgeInsets.all(16.0),
-//         child: Column(
-//           children: [
-//             TextField(
-//               controller: _usernameController,
-//               decoration: InputDecoration(labelText: 'Username'),
-//             ),
-//             TextField(
-//               controller: _passwordController,
-//               decoration: InputDecoration(labelText: 'Password'),
-//               obscureText: true,
-//             ),
-//             ElevatedButton(
-//               onPressed: _registerUser,
-//               child: Text('Register'),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
